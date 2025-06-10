@@ -1,6 +1,26 @@
 # ME350_Project
 UM-JI Joint Institute, ME3500J 2025su Project
 
+## 使用流程
+
+- 克隆仓库到本地并进入仓库
+```bash
+git clone git@github.com:foggystar/ME350_Project.git
+cd ME350_Project
+```
+
+- 每次使用仓库前同步云端
+```bash
+git pull
+```
+
+- 完成当前修改后将修改的文件推送到云端([参见conventional Commit](conventionalCommit.md))
+```bash
+git add 修改过的文件的路径（可以用空给分开，添加多个文件，偷懒直接用 * ）
+git commit -m "(type): 做了什么事情"
+git push
+```
+
 ## 项目结构说明
 
 *   **`code/`**: 存放项目的主要源代码。
@@ -22,3 +42,4 @@ UM-JI Joint Institute, ME3500J 2025su Project
     - `.3MF` 3D打印文件 
     - `.DXF` 激光切割文件
 *   **`refer.md`**: 参考资料或笔记。
+
