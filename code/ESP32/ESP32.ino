@@ -7,8 +7,8 @@ const int IN3 = 14;
 const int IN4 = 27;
 const int ENB = 13;
 const int ENA = 12;
-const int IN1 = 18;
-const int IN2 = 19;
+const int IN1 = 26;
+const int IN2 = 25;
 const int MOTOR_SPEED = 255;
 const int motorPWMFreq = 30000; 
 const int motorPWMResolution = 8;
@@ -38,14 +38,10 @@ void setup() {
 void loop() {
   if (Ps3.isConnected()) {
     if (Ps3.data.button.l2) {
-      digitalWrite(IN1, HIGH);
-      digitalWrite(IN2, LOW);
-      ledcWrite(ENA, MOTOR_SPEED); 
+      MotorABackward();
     }
     if (Ps3.data.button.l1) {
-      digitalWrite(IN1, LOW);
-      digitalWrite(IN2, HIGH);
-      ledcWrite(ENA, MOTOR_SPEED); 
+      MotorAForward();
     }
     if (Ps3.data.button.r1) {
       MotorBForward();  // 下面电机
