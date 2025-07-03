@@ -21,7 +21,7 @@ void setup() {
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   myServoA.attach(SERVO_PIN_A);  
-  myServoA.write(180);   
+  myServoA.write(45);   
   myServoB.attach(SERVO_PIN_B);
   myServoB.write(0);       
   pinMode(IN3, OUTPUT);
@@ -55,11 +55,11 @@ void loop() {
     }
     if (Ps3.data.button.up) {
       myServoA.write(180);  //上升
-      myServoB.write(0);
+      myServoB.write(145);
     }
     if (Ps3.data.button.down) {
       myServoA.write(45);  //下降
-      myServoB.write(145);
+      myServoB.write(0);
     }
   }
 }

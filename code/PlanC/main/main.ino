@@ -1,20 +1,17 @@
-#define IN1 2
-#define IN2 3
-#define IN3 4
-#define IN4 5
+int motor[4][2]={{53,51},{49,47},{52,50},{48,46}};
 
 void setup() {
-  pinMode(IN1,OUTPUT);
-  pinMode(IN2,OUTPUT);
-  pinMode(IN3,OUTPUT);
-  pinMode(IN4,OUTPUT);
-
+  for(int i=0;i<4;i++)
+  {
+    pinMode(motor[i][0],OUTPUT);
+    pinMode(motor[i][1],OUTPUT);
+  }
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  digitalWrite(IN1,HIGH);
-  digitalWrite(IN2,LOW);
-  digitalWrite(IN3,LOW);
-  digitalWrite(IN4,HIGH);
+  for(int i=0;i<4;i++)
+  {
+    digitalWrite(motor[i][0],HIGH); 
+    digitalWrite(motor[i][1],LOW); 
+  }
 }
