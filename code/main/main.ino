@@ -1,101 +1,102 @@
+#include <Ps3Controller.h>
+#include <ESP32Servo.h>
 
+Servo myServo;
 
-
-// const int IN1 = 7;
-// const int IN2 = 6;
-// const int ENA = 5; // PWM 控制速度
-
-// const int MOTOR_SPEED = 255;      // 0~255，自己实验调整
-// const int RUN_TIME_MS = 2000;     // 拉紧时间（毫秒），自己实验设定
-
-// void setup() {
-//   Serial.begin(9600);
-
-//   // 初始化电机控制引脚
-//   pinMode(IN1, OUTPUT);
-//   pinMode(IN2, OUTPUT);
-//   pinMode(ENA, OUTPUT);
-
-//   // 启动电机（正转）
-//   // digitalWrite(IN1, LOW);
-//   // digitalWrite(IN2, HIGH);
-//   digitalWrite(IN1, HIGH);
-//   digitalWrite(IN2, LOW);
-//   analogWrite(ENA, MOTOR_SPEED);
-
-//   Serial.println("开始拉紧同步带...");
-
-//   delay(RUN_TIME_MS); // 运行设定时间
-
-//   stopMotor(); // 停止电机
-//   Serial.println("已达到预计时间，电机停止。");
-// }
-
-// void loop() {
-//   // 电机已停止，不再执行任何操作
-// }
-
-// void stopMotor() {
-//   analogWrite(ENA, 0);
-//   digitalWrite(IN1, LOW);
-//   digitalWrite(IN2, LOW);
-// }
-
-const int IN1 = 7;
-const int IN2 = 6;
-const int ENA = 5;
-
-const int SWITCH_RUN = 2;  // 船型开关：控制运行/停止
-const int SWITCH_DIR = 3;
-
+const int IN3 = 14;
+const int IN4 = 27;
+const int ENB = 13;
+const int CURRENT_SENSOR_PIN = 34;
+const int SERVO_PIN = 33;
 const int MOTOR_SPEED = 255;
+const int CURRENT_THRESHOLD = 2760;
+const int DEBOUNCE_DELAY_MS = 50;
+int servoAngle = 0;
+const int motorPWMFreq = 30000; // 例如 5 kHz
+const int motorPWMResolution = 8; // 8位分辨率 (0-255)
+
+bool motorRunning = false;
+bool motorBlocked = false;
 
 void setup() {
   Serial.begin(9600);
-
-  pinMode(SWITCH_RUN, INPUT);  // 如果开关一端接 GND，这里用 INPUT_PULLUP 更安全
-  pinMode(SWITCH_DIR, INPUT_PULLUP);  
-  // pinMode(3, OUTPUT);
-  // digitalWrite(3, LOW); // 模拟 GND
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(ENA, OUTPUT);
-
-  Serial.println("系统启动，等待开关控制");
+  Ps3.begin("20:00:00:00:55:64");
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+  // pinMode(ENB, OUTPUT);
+  ledcAttach(ENB, motorPWMFreq, motorPWMResolution);
+  myServo.attach(SERVO_PIN);  // 默认参数：50Hz，脉宽500-2400μs
+  myServo.write(90);  
+  // MotorBackward(); 
 }
 
 void loop() {
-  bool runSwitch = digitalRead(SWITCH_RUN); // HIGH = 开关打开，LOW = 关闭
-  bool dirSwitch = digitalRead(SWITCH_DIR); 
-
-  if (runSwitch == HIGH) {
-    // 开关打开，电机转
-    if (dirSwitch == HIGH) {
-      digitalWrite(IN1, HIGH);
-      digitalWrite(IN2, LOW);  // 正转方向，你可以换 HIGH/LOW 调方向
-      analogWrite(ENA, MOTOR_SPEED);
-    }
-    else {
-      digitalWrite(IN1, LOW);
-      digitalWrite(IN2, HIGH);  // 正转方向，你可以换 HIGH/LOW 调方向
-      analogWrite(ENA, MOTOR_SPEED);
+  myServo.write(0);    // 转到0度
+  delay(1000);         // 保持1秒
+  myServo.write(90);   // 转到90度
+  delay(1000);
+  myServo.write(180);  // 转到180度
+  delay(1000);
+  // if (Ps3.isConnected()) {
+  //   if (Ps3.data.button.cross) {
+  //     MotorBackward();
+  //     motorBlocked = false;
+  //   }
+  //   if (Ps3.data.button.circle) {
+  //     stopMotor();
+  //   }
+  //   if (Ps3.data.button.square) {
+  //     MotorForward();
+  //     motorBlocked = false;
+  //   }
+    // if (Ps3.data.button.up) {
+    //   servoAngle += 5;
+    //   if (servoAngle >= 180) servoAngle = 180;
+    //   myServo.write(servoAngle);
+    //   Serial.printf("Servo angle: %d\n", servoAngle);
+    // }
+    // if (Ps3.data.button.down) {
+    //   servoAngle -= 5;
+    //   if (servoAngle <= 0) servoAngle = 0;
+    //   myServo.write(servoAngle);
+    //   Serial.printf("Servo angle: %d\n", servoAngle);
+    // }
     
-    Serial.println("电机正在运行");
-    }
-  } else {
-    // 开关关闭，电机停
-    stopMotor();
-    Serial.println("电机停止");
-  }
+  // }
 
-  // delay(100); // 减少串口刷屏 & 抖动
+  // if (motorRunning) {
+  //   int currentValue = analogRead(CURRENT_SENSOR_PIN);
+  //   Serial.println(currentValue);
+  //   if (currentValue < CURRENT_THRESHOLD) {
+  //     delay(DEBOUNCE_DELAY_MS);
+  //     currentValue = analogRead(CURRENT_SENSOR_PIN);
+  //     if (currentValue < CURRENT_THRESHOLD) {
+  //       stopMotor();
+  //       motorBlocked = true;
+  //     }
+  //   }
+  // }
+
+  // delay(100);
+}
+
+void MotorForward() {
+  digitalWrite(IN3, LOW);   
+  digitalWrite(IN4, HIGH);
+  ledcWrite(ENB, MOTOR_SPEED);
+  motorRunning = true;
+}
+
+void MotorBackward() {
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  ledcWrite(ENB, MOTOR_SPEED); // 使用ledcWrite代替analogWrite
+  motorRunning = true; 
 }
 
 void stopMotor() {
-  analogWrite(ENA, 0);
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
+  ledcWrite(ENB, 0);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+  motorRunning = false;
 }
-
-
-
